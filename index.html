@@ -192,7 +192,7 @@ function renderChips(){
     b.onclick=()=>{
       if(active.size===1&&active.has(c.k)) CATS.forEach(x=>active.add(x.k));
       else {active.clear();active.add(c.k)}
-      applyFilter(); renderChips(); fitAll();
+      applyFilter(); renderChips();
     };
     box.append(b);
   });
@@ -258,10 +258,11 @@ function openSpot(n,fly){
   const topH=document.querySelector(".top").getBoundingClientRect().bottom;
   const visTop=Math.min(topH,innerHeight*.35), visBot=Math.max(innerHeight-sheetH,visTop+60);
   const targetY=(visTop+visBot)/2+20;
-  const targetZoom=Math.max(map.getZoom(),fly?14:13);
-  const p=map.project(s.ll,targetZoom).add([0,innerHeight/2-targetY]);
+  // pan only; zoom changes are left to the user's own gestures
+  const z=map.getZoom();
+  const p=map.project(s.ll,z).add([0,innerHeight/2-targetY]);
   const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
-  map.flyTo(map.unproject(p,targetZoom),targetZoom,{animate:!reduce,duration:.6});
+  map.panTo(map.unproject(p,z),{animate:!reduce,duration:.5});
 }
 
 /* swipe down to close */
@@ -316,7 +317,7 @@ function onFix(pos){
   } else {meMarker.setLatLng(ll);meCircle.setLatLng(ll).setRadius(pos.coords.accuracy)}
   if(firstFix){
     firstFix=false; toastEl.classList.remove("on");
-    if(inArea(ll)) map.flyTo(ll,15); else toast(FAR_MSG,6000);
+    if(inArea(ll)) map.panTo(ll); else toast(FAR_MSG,6000);
   }
 }
 function stopWatch(){if(watchId!=null)navigator.geolocation.clearWatch(watchId);watchId=null}
@@ -338,7 +339,7 @@ function startWatch(high){
 $("locate").onclick=()=>{
   if(meMarker&&!firstFix){
     const ll=meMarker.getLatLng();
-    if(inArea(ll)) map.flyTo(ll,Math.max(map.getZoom(),15)); else toast(FAR_MSG,6000);
+    if(inArea(ll)) map.panTo(ll); else toast(FAR_MSG,6000);
     return;
   }
   if(!("geolocation" in navigator)){toast("이 브라우저는 위치 기능을 지원하지 않아요.");return}
