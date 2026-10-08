@@ -306,34 +306,45 @@ $("zout").onclick=()=>map.zoomOut();
 let meMarker=null, meCircle=null, watchId=null, firstFix=true;
 const toastEl=$("toast"); let toastT;
 function toast(html,ms=5000){toastEl.innerHTML=html;toastEl.classList.add("on");clearTimeout(toastT);toastT=setTimeout(()=>toastEl.classList.remove("on"),ms)}
+const inArea=ll=>map.options.maxBounds.contains(ll);
+const FAR_MSG="지금은 후쿠오카 밖에 있어서 지도에 표시할 수 없어요. 여행지에 도착하면 파란 점으로 위치가 보여요.";
+function onFix(pos){
+  const ll=[pos.coords.latitude,pos.coords.longitude];
+  if(!meMarker){
+    meCircle=L.circle(ll,{radius:pos.coords.accuracy,color:"#2f6fec",weight:1,fillOpacity:.12,interactive:false}).addTo(map);
+    meMarker=L.marker(ll,{icon:L.divIcon({className:"pinwrap",html:'<div class="me-dot"></div>',iconSize:[16,16],iconAnchor:[8,8]}),zIndexOffset:2000,keyboard:false}).addTo(map);
+  } else {meMarker.setLatLng(ll);meCircle.setLatLng(ll).setRadius(pos.coords.accuracy)}
+  if(firstFix){
+    firstFix=false; toastEl.classList.remove("on");
+    if(inArea(ll)) map.flyTo(ll,15); else toast(FAR_MSG,6000);
+  }
+}
+function stopWatch(){if(watchId!=null)navigator.geolocation.clearWatch(watchId);watchId=null}
+function startWatch(high){
+  stopWatch();
+  watchId=navigator.geolocation.watchPosition(onFix,err=>{
+    if(!firstFix) return;            // already located once; ignore a transient miss
+    if(high&&err.code!==1){startWatch(false);return}   // retry with network-based location
+    stopWatch(); $("locate").classList.remove("on");
+    const mac=/Macintosh/.test(navigator.userAgent)&&!("ontouchend" in document);
+    const msg=err.code===1
+      ? "위치 권한이 거부됐어요. 주소창 왼쪽 자물쇠(또는 aA) 메뉴에서 위치를 '허용'으로 바꾼 뒤 다시 눌러 주세요."
+      : mac
+        ? "Mac에서 위치를 받지 못했어요. 시스템 설정 › 개인정보 보호 및 보안 › 위치 서비스에서 사용 중인 브라우저를 켜 주세요."
+        : "위치를 받지 못했어요. 휴대폰의 위치 서비스가 켜져 있는지 확인한 뒤 다시 눌러 주세요.";
+    toast(`${msg} <a href="https://www.google.com/maps/@33.59,130.40,13z" target="_blank" rel="noopener">Google 지도에서 보기</a>`,9000);
+  },high?{enableHighAccuracy:true,timeout:10000,maximumAge:10000}:{enableHighAccuracy:false,timeout:20000,maximumAge:300000});
+}
 $("locate").onclick=()=>{
-  if(meMarker&&!firstFix){map.flyTo(meMarker.getLatLng(),Math.max(map.getZoom(),15));return}
+  if(meMarker&&!firstFix){
+    const ll=meMarker.getLatLng();
+    if(inArea(ll)) map.flyTo(ll,Math.max(map.getZoom(),15)); else toast(FAR_MSG,6000);
+    return;
+  }
   if(!("geolocation" in navigator)){toast("이 브라우저는 위치 기능을 지원하지 않아요.");return}
   $("locate").classList.add("on");
-  toast("현재 위치를 찾는 중…",3000);
-  try{
-    watchId=navigator.geolocation.watchPosition(pos=>{
-      const ll=[pos.coords.latitude,pos.coords.longitude];
-      if(!meMarker){
-        meCircle=L.circle(ll,{radius:pos.coords.accuracy,color:"#2f6fec",weight:1,fillOpacity:.12,interactive:false}).addTo(map);
-        meMarker=L.marker(ll,{icon:L.divIcon({className:"pinwrap",html:'<div class="me-dot"></div>',iconSize:[16,16],iconAnchor:[8,8]}),zIndexOffset:2000,keyboard:false}).addTo(map);
-      } else {meMarker.setLatLng(ll);meCircle.setLatLng(ll).setRadius(pos.coords.accuracy)}
-      if(firstFix){
-        firstFix=false; toastEl.classList.remove("on");
-        const far=!map.options.maxBounds.contains(ll);
-        if(far) toast("지금은 후쿠오카 밖에 있어서 지도 범위 밖이에요. 여행지에 도착하면 위치가 표시돼요.");
-        else map.flyTo(ll,15);
-      }
-    },err=>{
-      $("locate").classList.remove("on");
-      if(watchId!=null) navigator.geolocation.clearWatch(watchId);
-      watchId=null; firstFix=true;
-      const msg=err.code===1
-        ? "위치 권한이 막혀 있어요. 이 페이지를 Safari·Chrome에서 직접 열고 위치 권한을 허용해 주세요."
-        : "현재 위치를 찾지 못했어요. 잠시 후 다시 눌러 주세요.";
-      toast(`${msg} <a href="https://www.google.com/maps/@33.59,130.40,13z" target="_blank" rel="noopener">Google 지도에서 보기</a>`,7000);
-    },{enableHighAccuracy:true,timeout:15000,maximumAge:10000});
-  }catch(e){toast("이 화면에서는 위치 기능을 쓸 수 없어요.")}
+  toast("현재 위치를 찾는 중…",4000);
+  try{startWatch(true)}catch(e){$("locate").classList.remove("on");toast("이 화면에서는 위치 기능을 쓸 수 없어요.")}
 };
 </script>
 </body></html>
