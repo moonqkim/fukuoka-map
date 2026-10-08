@@ -62,7 +62,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--body);overflow:hidd
 .ctl button{font:inherit;width:46px;height:46px;border:0;background:var(--surface);color:var(--ink);font-size:22px;cursor:pointer;display:grid;place-items:center}
 .ctl .grp button+button{border-top:1px solid var(--line)}
 .ctl .loc{border-radius:12px;box-shadow:var(--shadow)}
-.ctl .loc.on{color:var(--me)}
+.ctl .loc.on{color:#fff;background:var(--me)}
 .ctl svg{width:22px;height:22px}
 button:focus-visible,.row:focus-visible{outline:2px solid var(--me);outline-offset:2px}
 
@@ -135,7 +135,7 @@ button:focus-visible,.row:focus-visible{outline:2px solid var(--me);outline-offs
 
 <button class="btn-list" id="openList"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>전체 목록</button>
 <div class="ctl">
-  <button class="loc" id="locate" aria-label="현재 위치 보기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2.5" fill="currentColor"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></button>
+  <button class="loc" id="locate" aria-label="현재 위치 켜기/끄기" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="7"/><circle cx="12" cy="12" r="2.5" fill="currentColor"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></button>
   <div class="grp"><button id="zin" aria-label="확대">+</button><button id="zout" aria-label="축소">−</button></div>
 </div>
 
@@ -365,7 +365,7 @@ function startWatch(high){
   watchId=navigator.geolocation.watchPosition(onFix,err=>{
     if(!firstFix) return;            // already located once; ignore a transient miss
     if(high&&err.code!==1){startWatch(false);return}   // retry with network-based location
-    stopWatch(); $("locate").classList.remove("on");
+    stopWatch(); $("locate").classList.remove("on"); $("locate").setAttribute("aria-pressed","false");
     const mac=/Macintosh/.test(navigator.userAgent)&&!("ontouchend" in document);
     const msg=err.code===1
       ? "위치 권한이 거부됐어요. 주소창 왼쪽 자물쇠(또는 aA) 메뉴에서 위치를 '허용'으로 바꾼 뒤 다시 눌러 주세요."
@@ -375,15 +375,19 @@ function startWatch(high){
     toast(`${msg} <a href="https://www.google.com/maps/@33.59,130.40,13z" target="_blank" rel="noopener">Google 지도에서 보기</a>`,9000);
   },high?{enableHighAccuracy:true,timeout:10000,maximumAge:10000}:{enableHighAccuracy:false,timeout:20000,maximumAge:300000});
 }
+function stopLocate(){
+  stopWatch();
+  if(meMarker){map.removeLayer(meMarker);meMarker=null}
+  if(meCircle){map.removeLayer(meCircle);meCircle=null}
+  firstFix=true;
+  $("locate").classList.remove("on"); $("locate").setAttribute("aria-pressed","false");
+}
 $("locate").onclick=()=>{
-  if(meMarker&&!firstFix){
-    const ll=meMarker.getLatLng();
-    if(inArea(ll)) map.panTo(ll); else toast(FAR_MSG,6000);
-    return;
-  }
+  // second tap turns location off
+  if(watchId!=null||meMarker){stopLocate();toast("현재 위치 표시를 껐어요.",2500);return}
   if(!("geolocation" in navigator)){toast("이 브라우저는 위치 기능을 지원하지 않아요.");return}
-  $("locate").classList.add("on");
-  toast("현재 위치를 찾는 중…",4000);
+  $("locate").classList.add("on"); $("locate").setAttribute("aria-pressed","true");
+  toast("현재 위치를 찾는 중… 한 번 더 누르면 꺼져요.",4000);
   try{startWatch(true)}catch(e){$("locate").classList.remove("on");toast("이 화면에서는 위치 기능을 쓸 수 없어요.")}
 };
 </script>
