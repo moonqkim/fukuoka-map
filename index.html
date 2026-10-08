@@ -163,7 +163,7 @@ const groute=s=>"https://www.google.com/maps/dir/?api=1&destination="+s.ll.join(
 $("sub").textContent=`명소 ${SPOTS.length}곳 · 10.9 – 10.12 · 핀을 눌러 사진 보기`;
 
 /* map: GSI tiles pre-downloaded beside the page, layered from coarse to fine */
-const map=L.map("map",{zoomControl:false,minZoom:9,maxZoom:18,zoomSnap:.5,attributionControl:true,tap:true});
+const map=L.map("map",{zoomControl:false,minZoom:6,maxZoom:18,zoomSnap:.5,attributionControl:true,tap:true});
 map.attributionControl.setPrefix(false);
 const ATTR='<a href="https://maps.gsi.go.jp/development/ichiran.html" target="_blank" rel="noopener">출처: 国土地理院</a> · 사진: Wikimedia Commons';
 /* basemap: OpenFreeMap vector tiles with Korean names first; GSI raster if WebGL/style fails */
@@ -178,7 +178,7 @@ function gsiFallback(){L.tileLayer("https://cyberjapandata.gsi.go.jp/xyz/pale/{z
     L.maplibreGL({style:st,attribution:'<a href="https://openfreemap.org" target="_blank" rel="noopener">OpenFreeMap</a> © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> · 사진: Wikimedia Commons',localIdeographFontFamily:"'Apple SD Gothic Neo','Noto Sans KR','Malgun Gothic',sans-serif"}).addTo(map);
   }catch(e){gsiFallback()}
 })();
-map.setMaxBounds(L.latLngBounds([[32.6,129.3],[34.5,131.5]]));
+map.setMaxBounds(L.latLngBounds([[31.0,123.5],[39.5,132.5]]));
 
 /* pins */
 const active=new Set(CATS.map(c=>c.k));
@@ -347,7 +347,7 @@ let meMarker=null, meCircle=null, watchId=null, firstFix=true;
 const toastEl=$("toast"); let toastT;
 function toast(html,ms=5000){toastEl.innerHTML=html;toastEl.classList.add("on");clearTimeout(toastT);toastT=setTimeout(()=>toastEl.classList.remove("on"),ms)}
 const inArea=ll=>map.options.maxBounds.contains(ll);
-const FAR_MSG="지금은 후쿠오카 밖에 있어서 지도에 표시할 수 없어요. 여행지에 도착하면 파란 점으로 위치가 보여요.";
+const FAR_MSG="지금 위치는 지도 범위(한국·후쿠오카) 밖이에요.";
 function onFix(pos){
   const ll=[pos.coords.latitude,pos.coords.longitude];
   if(!meMarker){
