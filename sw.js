@@ -1,5 +1,5 @@
 // Cache photos, map engine and map data on the phone so repeat visits are fast and use less data.
-const V='fk-v1';
+const V='fk-v2';
 const CACHE_FIRST=[/\/p\//,/cdnjs\.cloudflare\.com/,/unpkg\.com/,/fonts\.(googleapis|gstatic)\.com/,/tiles\.openfreemap\.org/,/cyberjapandata\.gsi\.go\.jp/];
 self.addEventListener('install',e=>self.skipWaiting());
 self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==V).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
