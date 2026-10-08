@@ -9,7 +9,7 @@
 :root{
   --bg:#f3f4f6; --surface:#ffffff; --ink:#1d2333; --muted:#5f6878; --line:#e3e6eb; --soft:#f1f3f6;
   --navy:#26315f; --tip:#eef2fa; --photo:#e0e3ea; --me:#2f6fec;
-  --c-shrine:#c0392b; --c-history:#8a5a1e; --c-city:#3b5bb5; --c-nature:#3f7d58; --c-sea:#2f8590; --c-onsen:#b0447a; --c-food:#c24d1c; --c-event:#c77700;
+  --c-shrine:#d32f2f; --c-history:#6d4c41; --c-city:#1e63d6; --c-nature:#2a8a3e; --c-sea:#00838f; --c-onsen:#8e24aa; --c-food:#e65100; --c-event:#f9a825; --on-event:#2a2100;
   --display:"Gowun Batang","Nanum Myeongjo",serif;
   --body:"IBM Plex Sans KR","Apple SD Gothic Neo","Noto Sans KR",system-ui,sans-serif;
   --shadow:0 6px 20px rgba(29,35,51,.12);
@@ -18,12 +18,12 @@
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#141821; --surface:#1d222d; --ink:#e8ebf1; --muted:#9ea6b5; --line:#2e3441; --soft:#252b37;
   --navy:#3a4a8f; --tip:#232b3d; --photo:#2a303c; --me:#6b9bff;
-  --c-shrine:#e0675a; --c-history:#c08b4a; --c-city:#7090e6; --c-nature:#6bb388; --c-sea:#5bb5bf; --c-onsen:#e58ab8; --c-food:#f08a5d; --c-event:#e8a33a;
+  --c-shrine:#ef5350; --c-history:#a1887f; --c-city:#5c8fef; --c-nature:#4cbb62; --c-sea:#26b5c6; --c-onsen:#b257d0; --c-food:#ff8f2e; --c-event:#fbc02d; --on-event:#2a2100;
   --shadow:0 6px 20px rgba(0,0,0,.4); --tiles:brightness(.78) contrast(1.05); color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#141821; --surface:#1d222d; --ink:#e8ebf1; --muted:#9ea6b5; --line:#2e3441; --soft:#252b37;
   --navy:#3a4a8f; --tip:#232b3d; --photo:#2a303c; --me:#6b9bff;
-  --c-shrine:#e0675a; --c-history:#c08b4a; --c-city:#7090e6; --c-nature:#6bb388; --c-sea:#5bb5bf; --c-onsen:#e58ab8; --c-food:#f08a5d; --c-event:#e8a33a;
+  --c-shrine:#ef5350; --c-history:#a1887f; --c-city:#5c8fef; --c-nature:#4cbb62; --c-sea:#26b5c6; --c-onsen:#b257d0; --c-food:#ff8f2e; --c-event:#fbc02d; --on-event:#2a2100;
   --shadow:0 6px 20px rgba(0,0,0,.4); --tiles:brightness(.78) contrast(1.05); color-scheme:dark}
 
 html,body{height:100%}
@@ -46,13 +46,13 @@ body{background:var(--bg);color:var(--ink);font-family:var(--body);overflow:hidd
 .chip b{font-weight:400;color:var(--muted);font-variant-numeric:tabular-nums}
 .chip[aria-pressed="false"]{opacity:.45}
 .chip.only{border-color:var(--ink)}
-.chip.hot{background:var(--c-event);border-color:var(--c-event);color:#fff;font-weight:600}
-.chip.hot i{background:#fff}
-.chip.hot b{color:rgba(255,255,255,.85)}
+.chip.hot{background:var(--c-event);border-color:var(--c-event);color:var(--on-event);font-weight:600}
+.chip.hot i{background:var(--on-event)}
+.chip.hot b{color:var(--on-event);opacity:.75}
 
 /* pins */
 .pinwrap{background:none;border:0}
-.pin{width:34px;height:34px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:var(--c);border:2.5px solid #fff;box-shadow:0 3px 8px rgba(0,0,0,.28);display:grid;place-items:center;transition:transform .15s}
+.pin{width:34px;height:34px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:var(--c);border:2.5px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.35);display:grid;place-items:center;transition:transform .15s}
 .pin span{transform:rotate(45deg);color:#fff;font-weight:600;font-size:13px;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
 .pin.ev::after{content:"";position:absolute;top:-4px;right:-4px;width:11px;height:11px;border-radius:50%;background:var(--c-event);border:2px solid #fff}
 .pin.sel{transform:rotate(-45deg) scale(1.3)}
